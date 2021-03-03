@@ -13,17 +13,7 @@ import { Query } from "react-apollo";
 import store from "store-js";
 
 const Index = () => {
-  const rows = [
-    ["Emerald Silk Gown", "$875.00", 124689, 140, "$122,500.00"],
-    ["Mauve Cashmere Scarf", "$230.00", 124533, 83, "$19,090.00"],
-    [
-      "Navy Merino Wool Blazer with khaki chinos and yellow belt",
-      "$445.00",
-      124518,
-      32,
-      "$14,240.00",
-    ],
-  ];
+  let rows = [];
 
   const GET_ORDERS = gql`
     query getOrders {
@@ -59,29 +49,30 @@ const Index = () => {
           if (loading) return <div>Loading…</div>;
           if (error) return <div>{error.message}</div>;
           console.log(data.orders.edges);
+          data.orders.edges.map((data) => {
+            const name =
+              data.node.customer.lastName + data.node.customer.firstName;
+            const id = data.node.customer.id;
+            const productId = data.node.lineItems.edges[0].node.product.id;
+            const productName = data.node.lineItems.edges[0].node.name;
+            const quantity = data.node.lineItems.edges[0].node.quantity;
+            const elm = [id, name, productId, productName, quantity];
+            console.log(elm);
+            rows.push(elm);
+          });
           return (
             <Layout>
               <Layout.Section>
-                <ResourceList
-                  showHeader
-                  resourceName={{ singular: "Order", plural: "Orders" }}
-                  items={data.orders.edges}
-                  renderItem={(item) => {
-                    const name =
-                      item.node.customer.lastName +
-                      item.node.customer.firstName;
-                    const customerId = item.node.customer.id;
-                    return (
-                      <ResourceItem id={customerId} name={name}>
-                        <h3>
-                          <TextStyle variation="strong">{customerId}</TextStyle>
-                        </h3>
-                        <h3>
-                          <TextStyle variation="strong">{name}</TextStyle>
-                        </h3>
-                      </ResourceItem>
-                    );
-                  }}
+                <DataTable
+                  columnContentTypes={[
+                    "text",
+                    "text",
+                    "text",
+                    "text",
+                    "numeric",
+                  ]}
+                  headings={["ID", "氏名", "商品ID", "商品名", "数量"]}
+                  rows={rows}
                 />
               </Layout.Section>
             </Layout>
