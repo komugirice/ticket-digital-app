@@ -28,3 +28,7 @@ This repository is used by [Shopify-App-CLI](https://github.com/Shopify/shopify-
 ## License
 
 This respository is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## 起動
+
+shopify serve
