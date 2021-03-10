@@ -6,6 +6,7 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
+// import ticketDao from "../server/dao/ticket_master";
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -95,6 +96,10 @@ app.prepare().then(async () => {
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
   router.get("(.*)", verifyRequest(), handleRequest); // Everything else must have sessions
+
+  // PostgresDBのREST
+  // router.post("/post_ticket", ticketDao.postTicketMaster);
+  // router.post("/get_tickets", ticketDao.getTicketMasters);
 
   server.use(router.allowedMethods());
   server.use(router.routes());
