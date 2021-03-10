@@ -19,7 +19,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
-import ticketDao from "../server/dao/ticket_master";
 
 const Index = () => {
   let rows = [];
@@ -32,11 +31,11 @@ const Index = () => {
     for (let i = 0; i < len; i++) {
       code += str.charAt(Math.floor(Math.random() * str.length));
     }
-    return code;
+    console.log(code);
   };
 
   const insertTicket = (row) => {
-    code = outputCode();
+    const code = outputCode();
     console.log("insertTicket");
     console.log(row);
 
@@ -182,9 +181,7 @@ const Index = () => {
                               {row.quantity}
                             </TableCell>
                             <TableCell key={row.index + "_6"}>
-                              <Button onClick={() => insertTicket(row)}>
-                                コード発行
-                              </Button>
+                              <Button onClick={outputCode}>コード発行</Button>
                             </TableCell>
                           </TableRow>
                         );
