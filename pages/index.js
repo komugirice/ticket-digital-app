@@ -31,7 +31,7 @@ const Index = () => {
     for (let i = 0; i < len; i++) {
       code += str.charAt(Math.floor(Math.random() * str.length));
     }
-    console.log(code);
+    alert(code);
   };
 
   const insertTicket = (row) => {
