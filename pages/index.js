@@ -19,11 +19,12 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
+import prisma from "../lib/prisma";
 
 const Index = () => {
   let rows = [];
 
-  const outputCode = () => {
+  const outputCode = async () => {
     const str =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // ランダムに発行する文字の対象
     const len = 15; // 桁数
@@ -32,6 +33,11 @@ const Index = () => {
       code += str.charAt(Math.floor(Math.random() * str.length));
     }
     alert(code);
+
+    const user = await prisma.user().findMany({
+      where: { published: true },
+    });
+    console.log(user);
   };
 
   const insertTicket = (row) => {
