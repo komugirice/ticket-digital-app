@@ -19,12 +19,12 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
-import prisma from "../lib/prisma";
+import axios from "../lib/axios";
 
 const Index = () => {
   let rows = [];
 
-  const outputCode = async () => {
+  const outputCode = () => {
     const str =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // ランダムに発行する文字の対象
     const len = 15; // 桁数
@@ -33,57 +33,30 @@ const Index = () => {
       code += str.charAt(Math.floor(Math.random() * str.length));
     }
     alert(code);
+    return code;
 
-    const user = await prisma.user().findMany({
-      where: { published: true },
-    });
-    console.log(user);
+    // const user = await prisma.user().findMany({
+    //   where: { published: true },
+    // });
+    // console.log(user);
   };
 
   const insertTicket = (row) => {
     const code = outputCode();
     console.log("insertTicket");
-    console.log(row);
+    // console.log(row);
 
-    // ①失敗 Module not found: Can't resolve 'dns'
-    // const { Pool } = require('pg');
-    // const pool = new Pool();
-    // const parse = require('postgres-date')
-    // ( async () => {
-    //   const client = await pool.connect()
-    //   try {
-    //     await client.query('BEGIN')
-    //     const insertTicketText = 'INSERT INTO users \
-    //       (ticket_id, event_seq, order_id, code, regdate, regmailaddr, moddate, modmailaddr) \
-    //       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)';
-    //     const insertTicketValues = [1, 1, row.id, row.code, "aaa", (to_timestamp(Date.now() / 1000.0)), "ccc", (to_timestamp(Date.now() / 1000.0))];
-    //     await client.query(insertTicketText, insertTicketValues)
-    //     await client.query('COMMIT')
-    //   } catch (e) {
-    //     await client.query('ROLLBACK')
-    //     throw e
-    //   } finally {
-    //     client.release()
-    //   }
-    // }).catch(e => console.error(e.stack))
-
-    // ②失敗 Module not found: Can't resolve 'dns'
-    // const Client = require('pg');
-    // const client = new Client({
-    //   user: process.env.PSQL_USER,
-    //   host: process.env.PSQL_HOST,
-    //   database: process.env.PSQL_DB,
-    //   password: process.env.PSQL_PASSWORD,
-    //   port: process.env.PSQL_PORT,
-    // })
-
-    // client.connect();
-
-    // const insertTicketText = 'INSERT INTO users \
-    //   (ticket_id, event_seq, order_id, code, regdate, regmailaddr, moddate, modmailaddr) \
-    //   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)';
-    // const insertTicketValues = [1, 1, row.id, row.code, "aaa", (to_timestamp(Date.now() / 1000.0)), "ccc", (to_timestamp(Date.now() / 1000.0))];
-    // client.query(insertTicketText, insertTicketValues, console);
+    let ticket = {
+      ticket_id: 1,
+      event_seq: 1,
+      order_id: row.id,
+      code: code,
+      regdate: new Date(),
+      regmailaddr: "aaa",
+      moddate: new Date(),
+      modmailaddr: "bbb",
+    };
+    axios.post("/tickets.json", ticket);
   };
 
   const GET_ORDERS = gql`
@@ -187,7 +160,9 @@ const Index = () => {
                               {row.quantity}
                             </TableCell>
                             <TableCell key={row.index + "_6"}>
-                              <Button onClick={outputCode}>コード発行</Button>
+                              <Button onClick={() => insertTicket(row)}>
+                                コード発行
+                              </Button>
                             </TableCell>
                           </TableRow>
                         );
