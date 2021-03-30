@@ -1,15 +1,4 @@
-import {
-  Heading,
-  Page,
-  Layout,
-  ResourceList,
-  ResourceItem,
-  Card,
-  DataTable,
-  TextStyle,
-  Button,
-  Navigation,
-} from "@shopify/polaris";
+import { Page, Layout, Button } from "@shopify/polaris";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
 import store from "store-js";
@@ -21,50 +10,29 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import axios from "../lib/axios";
-import { Redirect } from "@shopify/app-bridge/actions";
-import React from "react";
+import firebase from "firebase";
+import Modal from "../components/modal";
 import { Context } from "@shopify/app-bridge-react";
-import Link from "next/link";
+import ReactModal from "react-modal";
+import { useModal, ModalProvider } from "react-modal-hook";
 
-// const Index = () => {
-class Index extends React.Component {
+class Qr extends React.Component {
   static contextType = Context;
 
   render() {
     let rows = [];
 
-    const outputCode = () => {
-      const str =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // ランダムに発行する文字の対象
-      const len = 15; // 桁数
-      let code = "";
-      for (let i = 0; i < len; i++) {
-        code += str.charAt(Math.floor(Math.random() * str.length));
-      }
-      alert(code);
-      return code;
+    const [showModal, hideModal] = useModal(() => (
+      <>
+        <ReactModal isOpen>
+          <p>Modal content</p>
+          <button onClick={hideModal}>Hide modal</button>
+        </ReactModal>
+      </>
+    ));
 
-      // const user = await prisma.user().findMany({
-      //   where: { published: true },
-      // });
-      // console.log(user);
-    };
-
-    const insertTicket = (row) => {
-      const code = outputCode();
-      console.log("insertTicket");
-      // console.log(row);
-
-      let ticket = {
-        event_seq: 1,
-        order_id: row.id,
-        code: code,
-        regdate: new Date(),
-        regmailaddr: "aaa",
-        upddate: new Date(),
-        updmailaddr: "bbb",
-      };
-      axios.post("/tickets.json", ticket);
+    const displayQR = (row) => {
+      showModal;
     };
 
     const GET_ORDERS = gql`
@@ -94,38 +62,8 @@ class Index extends React.Component {
         }
       }
     `;
-
-    const app = this.context;
-    const redirectToQr = () => {
-      // console.log(app);
-      const redirect = Redirect.create(app);
-      // console.log(redirect);
-      redirect.dispatch(Redirect.Action.APP, "/qr");
-    };
     return (
-      <div>
-        {/* <Navigation location="/">
-          <Navigation.Section
-            items={[
-              {
-                url: '/',
-                exactMatch: true,
-                label: 'Home'
-              },
-              {
-                url: 'qr',
-                label: 'QR'
-              },
-            ]}
-          />
-        </Navigation> */}
-        {/* <Button onClick={() => redirectToQr()}>
-        QRコードページ
-      </Button> */}
-        <Link href="/qr">
-          <a>QRコードページ</a>
-        </Link>
-        {/* <Link url="./qr">QRコードページ</Link> */}
+      <ModalProvider>
         <Page title="注文一覧">
           <Query query={GET_ORDERS}>
             {({ data, loading, error }) => {
@@ -154,18 +92,6 @@ class Index extends React.Component {
               return (
                 <Layout>
                   <Layout.Section>
-                    {/* <DataTable
-                    columnContentTypes={[
-                      "text",
-                      "text",
-                      "text",
-                      "text",
-                      "numeric",
-                      "text"
-                    ]}
-                    headings={["注文ID", "氏名", "商品ID", "商品名", "数量", "ボタン"]}
-                    rows={rows}
-                  /> */}
                     <TableContainer>
                       <Table stickyHeader aria-label="sticky table">
                         <TableHead>
@@ -199,8 +125,8 @@ class Index extends React.Component {
                                   {row.quantity}
                                 </TableCell>
                                 <TableCell key={row.index + "_6"}>
-                                  <Button onClick={() => insertTicket(row)}>
-                                    コード発行
+                                  <Button onClick={() => displayQR(row)}>
+                                    コード表示
                                   </Button>
                                 </TableCell>
                               </TableRow>
@@ -215,9 +141,9 @@ class Index extends React.Component {
             }}
           </Query>
         </Page>
-      </div>
+      </ModalProvider>
     );
   }
 }
 
-export default Index;
+export default Qr;

@@ -84,6 +84,10 @@ app.prepare().then(async () => {
     }
   });
 
+  router.get("/qr", async (ctx) => {
+    ctx.redirect(`/qr`);
+  });
+
   router.post("/webhooks", async (ctx) => {
     try {
       await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);

@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "https://ticket-degital-app.myshopify.com/admin/apps/ticket-digital-app",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "type": "pwa-node",
       "request": "launch",
       "name": "Launch Program",
