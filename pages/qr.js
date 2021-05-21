@@ -18,12 +18,13 @@ import { useModal } from "react-modal-hook";
 import QRCode from "qrcode.react";
 import { useState } from "react";
 
-const Qr = () => {
+const Qr = async () => {
   let rows = [];
   const [code, setCode] = useState("");
   const [showModal, hideModal] = useModal(() => {
     let code = outputCode();
     setCode(code);
+
     return (
       <>
         <ReactModal isOpen>
@@ -52,110 +53,64 @@ const Qr = () => {
     showModal();
   };
 
-  const GET_ORDERS = gql`
-    query getOrders {
-      orders(first: 10) {
-        edges {
-          node {
-            id
-            customer {
-              id
-              lastName
-              firstName
-            }
-            lineItems(first: 10) {
-              edges {
-                node {
-                  name
-                  quantity
-                  product {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
+  axios
+    .get("/tickets.json")
+    .then((res) => {
+      console.log(res.data);
+      let array = Object.entries(res.data);
+      array.map((data, i) => {
+        const id = i;
+        const orderId = data[1].order_id;
+        const code = data[1].code;
+        const row = {
+          index: i,
+          orderId: orderId,
+          code: code,
+        };
+        rows.push(row);
+      });
+    })
+    .catch((error) => {
+      //異常終了時
+      alert(error);
+    });
+
   return (
     <Page title="注文一覧">
-      <Query query={GET_ORDERS}>
-        {({ data, loading, error }) => {
-          if (loading) return <div>Loading…</div>;
-          if (error) return <div>{error.message}</div>;
-          // console.log(data.orders.edges);
-          data.orders.edges.map((data, i) => {
-            const index = i;
-            const id = data.node.id;
-            const name =
-              data.node.customer.lastName + data.node.customer.firstName;
-            const productId = data.node.lineItems.edges[0].node.product.id;
-            const productName = data.node.lineItems.edges[0].node.name;
-            const quantity = data.node.lineItems.edges[0].node.quantity;
-            const elm = {
-              index: index,
-              id: id,
-              name: name,
-              productId: productId,
-              productName: productName,
-              quantity: quantity,
-            };
-            // console.log(elm);
-            rows.push(elm);
-          });
-          return (
-            <Layout>
-              <Layout.Section>
-                <TableContainer>
-                  <Table aria-label="sticky table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>注文ID</TableCell>
-                        <TableCell>氏名</TableCell>
-                        <TableCell>商品ID</TableCell>
-                        <TableCell>商品名</TableCell>
-                        <TableCell>数量</TableCell>
-                        <TableCell></TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row) => {
-                        console.log(row);
-                        return (
-                          <TableRow key={row.index}>
-                            <TableCell key={row.index + "_1"}>
-                              {row.id}
-                            </TableCell>
-                            <TableCell key={row.index + "_2"}>
-                              {row.name}
-                            </TableCell>
-                            <TableCell key={row.index + "_3"}>
-                              {row.productId}
-                            </TableCell>
-                            <TableCell key={row.index + "_4"}>
-                              {row.productName}
-                            </TableCell>
-                            <TableCell key={row.index + "_5"}>
-                              {row.quantity}
-                            </TableCell>
-                            <TableCell key={row.index + "_6"}>
-                              <Button onClick={() => displayQR(row)}>
-                                コード表示
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Layout.Section>
-            </Layout>
-          );
-        }}
-      </Query>
+      <Layout>
+        <Layout.Section>
+          <TableContainer>
+            <Table aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>注文ID</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>コード</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => {
+                  console.log(row);
+                  return (
+                    <TableRow key={row.index}>
+                      <TableCell key={row.index + "_1"}>
+                        {row.orderId}
+                      </TableCell>
+                      <TableCell key={row.index + "_1"}>{row.code}</TableCell>
+                      <TableCell key={row.index + "_2"}>
+                        <Button onClick={() => displayQR(row)}>
+                          コード表示
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 };
